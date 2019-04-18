@@ -9,7 +9,10 @@
 #include<KokkosSparse_CrsMatrix.hpp>
 #include<KokkosSparse_spgemm.hpp>
 
-//Create a random square matrix for testing mat-mat addition kernels
+/**
+ * @brief     create a random matrix for testing
+ *            borrowed from kokkos-kernels repo: unit_test/sparse/Test_Sparse_spadd.hpp
+ */
 template <typename crsMat_t, typename ordinal_type>
 crsMat_t randomMatrix(ordinal_type nrows, ordinal_type minNNZ, ordinal_type maxNNZ, bool sortRows)
 {
@@ -67,6 +70,9 @@ crsMat_t randomMatrix(ordinal_type nrows, ordinal_type minNNZ, ordinal_type maxN
   return crsMat_t("test matrix", nrows, nrows, nnz, values, rowmap, entries);
 }
 
+/**
+ * @brief     main function
+ */
 int main(int argc, char* argv[]) 
 {
   Kokkos::initialize();
@@ -78,8 +84,8 @@ int main(int argc, char* argv[])
   typedef typename KokkosSparse::CrsMatrix<scalar_t, lno_t, Device> crsMat_t;
 
   // Create and fill matrices to multiply, input_mat and input_mat2
-  crsMat_t input_mat = randomMatrix<crsMat_t, lno_t>(100, 100, 200, true);
-  crsMat_t input_mat2 = randomMatrix<crsMat_t, lno_t>(100, 100, 200, true);
+  crsMat_t input_mat = randomMatrix<crsMat_t, lno_t>(100, 2, 5, true);
+  crsMat_t input_mat2 = randomMatrix<crsMat_t, lno_t>(100, 2, 5, true);
 
   typedef typename crsMat_t::StaticCrsGraphType graph_t;
   typedef typename graph_t::row_map_type::non_const_type lno_view_t;

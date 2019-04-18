@@ -41,6 +41,10 @@ include_directories("${PROJECT_SOURCE_DIR}/ext/kokkos-kernels/src/sparse/impl")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/kokkos" ${PROJECT_BINARY_DIR}/kokkos)
 include_directories(${Kokkos_INCLUDE_DIRS_RET})
+include_directories("${PROJECT_BINARY_DIR}")
+
+file(WRITE "${PROJECT_BINARY_DIR}/KokkosKernels_config.h" "//dummy file for kokkos-kernels to include")
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/spgemm.cpp")
 target_link_libraries(pairmap2graph kokkos)
