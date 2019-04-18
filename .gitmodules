@@ -7,3 +7,6 @@
 [submodule "ext/clipp"]
 	path = ext/clipp
 	url = https://github.com/muellan/clipp.git
+[submodule "ext/kokkos"]
+	path = ext/kokkos
+	url = https://github.com/kokkos/kokkos.git
