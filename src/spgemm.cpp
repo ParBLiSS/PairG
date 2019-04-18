@@ -84,8 +84,8 @@ int main(int argc, char* argv[])
   typedef typename KokkosSparse::CrsMatrix<scalar_t, lno_t, Device> crsMat_t;
 
   // Create and fill matrices to multiply, input_mat and input_mat2
-  crsMat_t input_mat = randomMatrix<crsMat_t, lno_t>(100, 2, 5, true);
-  crsMat_t input_mat2 = randomMatrix<crsMat_t, lno_t>(100, 2, 5, true);
+  crsMat_t input_mat = randomMatrix<crsMat_t, lno_t>(100, 1, 2, true);
+  crsMat_t input_mat2 = randomMatrix<crsMat_t, lno_t>(100, 1, 2, true);
 
   typedef typename crsMat_t::StaticCrsGraphType graph_t;
   typedef typename graph_t::row_map_type::non_const_type lno_view_t;
@@ -164,6 +164,28 @@ int main(int argc, char* argv[])
 
   graph_t static_graph (entriesC, row_mapC);
   crsMat_t crsmat("CrsMatrix", num_cols_2, valuesC, static_graph);
+
+  
+  std::cout << "row_mapA:" << input_mat.graph.row_map.extent(0) << std::endl;
+  std::cout << "entriesA:" << input_mat.graph.entries.extent(0) << std::endl;
+  std::cout << "valuesA:" << input_mat.values.extent(0) << std::endl;
+  KokkosKernels::Impl::print_1Dview(input_mat.graph.row_map, true);
+  KokkosKernels::Impl::print_1Dview(input_mat.graph.entries, true);
+  KokkosKernels::Impl::print_1Dview(input_mat.values, true);
+
+  std::cout << "row_mapB:" << input_mat2.graph.row_map.extent(0) << std::endl;
+  std::cout << "entriesB:" << input_mat2.graph.entries.extent(0) << std::endl;
+  std::cout << "valuesB:" << input_mat2.values.extent(0) << std::endl;
+  KokkosKernels::Impl::print_1Dview(input_mat2.graph.row_map, true);
+  KokkosKernels::Impl::print_1Dview(input_mat2.graph.entries, true);
+  KokkosKernels::Impl::print_1Dview(input_mat2.values, true);
+
+  std::cout << "row_mapC:" << row_mapC.extent(0) << std::endl;
+  std::cout << "entriesC:" << entriesC.extent(0) << std::endl;
+  std::cout << "valuesC:" << valuesC.extent(0) << std::endl;
+  KokkosKernels::Impl::print_1Dview(row_mapC, true);
+  KokkosKernels::Impl::print_1Dview(entriesC, true);
+  KokkosKernels::Impl::print_1Dview(valuesC, true);
 
   kh.destroy_spgemm_handle();
 
