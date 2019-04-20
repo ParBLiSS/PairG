@@ -1,8 +1,12 @@
 /**
- * @file    utility.cpp
+ * @file    utility.hpp
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
+#ifndef PAIRG_UTILITY_HPP
+#define PAIRG_UTILITY_HPP
+
+#include <chrono>
 
 namespace pairg
 {
@@ -11,7 +15,7 @@ namespace pairg
    *                borrowed from mxx library github.com/patflick/mxx
    */
   template <typename duration>
-    class timer_impl i
+    class timer_impl
     {
       protected:
         //use the monotonic `steady_clock` for time measurements of code
@@ -36,3 +40,5 @@ namespace pairg
   //pairg::timer, specialization for measuring milliseconds in double precision
   using timer = timer_impl<std::chrono::duration<double, std::milli> >;
 }
+
+#endif

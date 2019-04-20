@@ -22,6 +22,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "Output directory for libraries" )
 
 include_directories("${PROJECT_SOURCE_DIR}/ext")
+include_directories("${PROJECT_SOURCE_DIR}/src/include")
 
 #### kokkos stuff
 include_directories("${PROJECT_SOURCE_DIR}/ext/kokkos-kernels/src")
@@ -40,5 +41,5 @@ include_directories("${PROJECT_BINARY_DIR}")
 file(WRITE "${PROJECT_BINARY_DIR}/KokkosKernels_config.h" "//dummy file for kokkos-kernels to include")
 include_directories("${PROJECT_BINARY_DIR}")
 
-add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/spgemm.cpp")
+add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/main.cpp")
 target_link_libraries(pairmap2graph kokkos)

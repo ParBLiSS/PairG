@@ -1,8 +1,17 @@
 /**
- * @file    spgemm_utility.cpp
+ * @file    spgemm_utility.hpp
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
+#ifndef SPGEMM_UTILITY_HPP
+#define SPGEMM_UTILITY_HPP
+
+#define KOKKOSKERNELS_IMPL_COMPILE_LIBRARY false
+
+#include <algorithm>   
+#include <cstdlib>     
+#include <type_traits>
+#include <cassert>
 
 //External includes
 #include "Kokkos_Core.hpp"
@@ -11,98 +20,217 @@
 
 namespace pairg
 {
-  template <typename crsMat_t>
-    crsMat_t addMatrices(crsMat_t A, crsMat_t B)
-    {
-    }
+  class matrixOps
+  {
+    public:
 
-  template <typename crsMat_t>
-    crsMat_t multiplyMatrices(crsMat_t A, crsMat_t B)
-    {
-    }
+      //value type in matrices
+      typedef int scalar_t;
 
-  template <typename crsMat_t>
-    crsMat_t power(crsMat_t A, int n)
-    {
-    }
+      //locus type (or coordinate type)
+      typedef int lno_t;
 
-  template <typename crsMat_t, typename ordinal_type>
-    crsMat_t queryValue(crsMat_t A, ordinal_type row, ordinal_type col)
-    {
-    }
+      //parallelization support requested from kokkos
+      typedef Kokkos::OpenMP Device;
 
-  /**
-   * @brief                       create a random square matrix for testing, using kokkos-kernels
-   * @tparam[in] crsMat_t         CRS matrix type
-   * @tparam[in] ordinal_type     ordinal type (type for storing matrix indices)
-   * @param[in] nrows             count of rows
-   * @param[in] minNNZ            minimum non-zero elements per row
-   * @param[in] maxNNZ            maximum non-zero elements per row
-   * @param[in] sortRows          sort indices within each row 
-   * @return                      the generated matrix
-   * @details                     - value of each non-zero element is set to 1
-   *                              - not suitable for very large matrices as the randomization procedure is expensive
-   *                              - modified from kokkos-kernels repo: unit_test/sparse/Test_Sparse_spadd.hpp
-   */
-  template <typename crsMat_t, typename ordinal_type>
-    crsMat_t randomMatrix(ordinal_type nrows, ordinal_type minNNZ, ordinal_type maxNNZ, bool sortRows)
-    {
+      //matrix format
+      typedef typename KokkosSparse::CrsMatrix<scalar_t, lno_t, Device> crsMat_t;
+
       typedef typename crsMat_t::StaticCrsGraphType graph_t;
-      typedef typename graph_t::row_map_type::non_const_type size_type_view_t;
-      typedef typename graph_t::entries_type::non_const_type lno_view_t;
       typedef typename crsMat_t::values_type::non_const_type scalar_view_t;
-      typedef typename size_type_view_t::non_const_value_type size_type;  //rowptr type
-      typedef typename lno_view_t::non_const_value_type lno_t;            //colind type
+      typedef typename graph_t::row_map_type::non_const_type lno_view_t;
+      typedef typename graph_t::entries_type::non_const_type lno_nnz_view_t;
+      typedef typename lno_view_t::value_type size_type;
 
-      static_assert(std::is_same<ordinal_type, lno_t>::value, "ordinal_type should be same as lno_t from crsMat_t");
+      //Kokkos's KernelHandle
+      typedef KokkosKernels::Experimental::KokkosKernelsHandle
+        <size_type, lno_t, scalar_t,
+        typename Device::execution_space, typename Device::memory_space,typename Device::memory_space > KernelHandle;
 
-      //first, populate rowmap
-      size_type_view_t rowmap("rowmap", nrows + 1);
-      typename size_type_view_t::HostMirror h_rowmap = Kokkos::create_mirror_view(rowmap);
-      size_type nnz = 0;
-      for(lno_t i = 0; i < nrows; i++)
+      /**
+       * @brief   boolean addition of two matrices 
+       */
+      static crsMat_t addMatrices(const crsMat_t &A, const crsMat_t &B)
       {
-        size_type rowEntries = rand() % (maxNNZ - minNNZ + 1) + minNNZ;
-        h_rowmap(i) = nnz;
-        nnz += rowEntries;
       }
-      h_rowmap(nrows) = nnz;
-      Kokkos::deep_copy(rowmap, h_rowmap);
 
-      //allocate values and entries
-      scalar_view_t values("values", nnz);
-      //populate values
-      typename scalar_view_t::HostMirror h_values = Kokkos::create_mirror_view(values);
-      for(size_type i = 0; i < nnz; i++)
+      /**
+       * @brief     boolean multiplication of two matrices 
+       * @details   - modified from API specied in kokkos-kernels
+       *              github.com/kokkos/kokkos-kernels/wiki/SPARSE-3::spgemm 
+       *
+       *            - all non-zero integers are reset to 1 in the returned matrix
+       */
+      static crsMat_t multiplyMatrices(const crsMat_t &A, const crsMat_t &B)
       {
-        h_values(i) = 1;
-      }
-      Kokkos::deep_copy(values, h_values);
+        KernelHandle kh; 
+        kh.set_team_work_size(16);
+        kh.set_dynamic_scheduling(true);
 
-      //populate entries (make sure no entry is repeated within a row)
-      lno_view_t entries("entries", nnz);
-      typename lno_view_t::HostMirror h_entries = Kokkos::create_mirror_view(entries);
-      std::vector<lno_t> indices(nrows);
-      for(lno_t i = 0; i < nrows; i++)
+        // Select an spgemm algorithm, limited by configuration at compile-time and set via the handle
+        // Some options: {SPGEMM_KK_MEMORY, SPGEMM_KK_SPEED, SPGEMM_KK_MEMSPEED, */ SPGEMM_MKL}
+        KokkosSparse::SPGEMMAlgorithm spgemm_algorithm = KokkosSparse::SPGEMM_KK_MEMORY;
+        kh.create_spgemm_handle(spgemm_algorithm);
+
+        const lno_t num_rows_A = A.numRows();
+        const lno_t num_cols_A = A.numCols();
+        const lno_t num_rows_B = B.numRows();
+        const lno_t num_cols_B = B.numCols();
+
+        // Require num_cols_A == num_row_B
+        assert(num_cols_A == num_rows_B);
+
+        // Prepare resultant matrix
+        lno_view_t row_map_C ("non_const_lnow_row", num_rows_A + 1);
+        lno_nnz_view_t  entries_C;
+        scalar_view_t values_C;
+
+        // Get count of nnz in matrix C
+        KokkosSparse::Experimental::spgemm_symbolic (&kh, num_rows_A, num_rows_B, num_cols_B,
+            A.graph.row_map, A.graph.entries, false,
+            B.graph.row_map, B.graph.entries, false,
+            row_map_C
+            );
+
+        lno_t c_nnz_size = kh.get_spgemm_handle()->get_c_nnz();
+        if (c_nnz_size)
+        {
+          entries_C = lno_nnz_view_t (Kokkos::ViewAllocateWithoutInitializing("entries_C"), c_nnz_size);
+          values_C = scalar_view_t (Kokkos::ViewAllocateWithoutInitializing("values_C"), c_nnz_size);
+        }
+
+        // Fill matrix multiplication values 
+        KokkosSparse::Experimental::spgemm_numeric (&kh, num_rows_A, num_rows_B, num_cols_B,
+            A.graph.row_map, A.graph.entries, A.values, false,
+            B.graph.row_map, B.graph.entries, B.values, false,
+            row_map_C, entries_C, values_C
+            );
+
+        //reset nnz values in C to 1
+        for(size_type i = 0; i < c_nnz_size; i++) {
+          values_C(i) = 1;
+        }
+
+        kh.destroy_spgemm_handle();
+
+        graph_t static_graph (entries_C, row_map_C);
+        return crsMat_t("C", num_cols_B, values_C, static_graph);
+      }
+
+      /**
+       * @brief   raise a square matrix to a power
+       */
+      static crsMat_t power(const crsMat_t &A, int n)
       {
-        for(lno_t j = 0; j < nrows; j++)
-        {
-          indices[j] = j;
-        }
-        std::random_shuffle(indices.begin(), indices.end());
-        size_type rowStart = h_rowmap(i);
-        size_type rowCount = h_rowmap(i + 1) - rowStart;
-        if(sortRows)
-        {
-          std::sort(indices.begin(), indices.begin() + rowCount);
-        }
-        for(size_type j = 0; j < rowCount; j++)
-        {
-          h_entries(rowStart + j) = indices[j];
-        }
       }
-      Kokkos::deep_copy(entries, h_entries);
 
-      return crsMat_t("test matrix", nrows, nrows, nnz, values, rowmap, entries);
-    }
+      /**
+       * @brief                       query value at given coordinates in a given matrix
+       * @note                        row and column indices should be 0-based
+       */
+      static bool queryValue(const crsMat_t &A, lno_t row, lno_t col)
+      {
+      }
+
+      /**
+       * @brief                       sort indices within each row (e.g., useful for fast querying)
+       */
+      static crsMat_t modify_sortRows(const crsMat_t &A)
+      {
+      }
+
+      /**
+       * @brief                       print matrix to stdout
+       * @param[in]  verbose          1 - just print matrix properties
+       *                              2 - print matrix properties and limited set of values
+       *                              3 - print matrix properties and all values
+       */
+      static bool printMatrix(const crsMat_t &A, int verbose)
+      {
+        std::cout << "INFO, pairg::matrixOps::printMatrix, row map size:" << A.graph.row_map.extent(0) << "\n";
+        std::cout << "INFO, pairg::matrixOps::printMatrix, entries (nnz):" << A.graph.entries.extent(0) << "\n";
+        std::cout << "INFO, pairg::matrixOps::printMatrix, values (nnz):" << A.values.extent(0) << "\n";
+
+        if(verbose > 1) 
+        {
+          KokkosKernels::Impl::print_1Dview(A.graph.row_map, verbose > 2);
+          KokkosKernels::Impl::print_1Dview(A.graph.entries, verbose > 2);
+          KokkosKernels::Impl::print_1Dview(A.values, verbose > 2);
+        }
+
+        std::cout << "\n";
+      }
+
+      /**
+       * @brief                       create a random square matrix for testing, using kokkos-kernels
+       * @param[in] nrows             count of rows
+       * @param[in] minNNZ            minimum non-zero elements per row
+       * @param[in] maxNNZ            maximum non-zero elements per row
+       * @param[in] sortRows          sort indices within each row 
+       * @return                      the generated matrix
+       * @details                     - value of each non-zero element is set to 1
+       *                              - not suitable for very large matrices as the randomization procedure is expensive
+       *                              - modified from kokkos-kernels repo: unit_test/sparse/Test_Sparse_spadd.hpp
+       */
+      static crsMat_t randomMatrix(lno_t nrows, lno_t minNNZ, lno_t maxNNZ, bool sortRows)
+      {
+        typedef typename crsMat_t::StaticCrsGraphType graph_t;
+        typedef typename graph_t::row_map_type::non_const_type size_type_view_t;
+        typedef typename graph_t::entries_type::non_const_type lno_view_t;
+        typedef typename crsMat_t::values_type::non_const_type scalar_view_t;
+        typedef typename size_type_view_t::non_const_value_type size_type;  //rowptr type
+        typedef typename lno_view_t::non_const_value_type lno_t;            //colind type
+
+        //first, populate rowmap
+        size_type_view_t rowmap("rowmap", nrows + 1);
+        typename size_type_view_t::HostMirror h_rowmap = Kokkos::create_mirror_view(rowmap);
+        size_type nnz = 0;
+        for(lno_t i = 0; i < nrows; i++)
+        {
+          size_type rowEntries = rand() % (maxNNZ - minNNZ + 1) + minNNZ;
+          h_rowmap(i) = nnz;
+          nnz += rowEntries;
+        }
+        h_rowmap(nrows) = nnz;
+        Kokkos::deep_copy(rowmap, h_rowmap);
+
+        //allocate values and entries
+        scalar_view_t values("values", nnz);
+        //populate values
+        typename scalar_view_t::HostMirror h_values = Kokkos::create_mirror_view(values);
+        for(size_type i = 0; i < nnz; i++)
+        {
+          h_values(i) = 1;
+        }
+        Kokkos::deep_copy(values, h_values);
+
+        //populate entries (make sure no entry is repeated within a row)
+        lno_view_t entries("entries", nnz);
+        typename lno_view_t::HostMirror h_entries = Kokkos::create_mirror_view(entries);
+        std::vector<lno_t> indices(nrows);
+        for(lno_t i = 0; i < nrows; i++)
+        {
+          for(lno_t j = 0; j < nrows; j++)
+          {
+            indices[j] = j;
+          }
+          std::random_shuffle(indices.begin(), indices.end());
+          size_type rowStart = h_rowmap(i);
+          size_type rowCount = h_rowmap(i + 1) - rowStart;
+          if(sortRows)
+          {
+            std::sort(indices.begin(), indices.begin() + rowCount);
+          }
+          for(size_type j = 0; j < rowCount; j++)
+          {
+            h_entries(rowStart + j) = indices[j];
+          }
+        }
+        Kokkos::deep_copy(entries, h_entries);
+
+        return crsMat_t("test matrix", nrows, nrows, nnz, values, rowmap, entries);
+      }
+  };
 }
+
+#endif
