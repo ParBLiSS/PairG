@@ -35,28 +35,35 @@ int main(int argc, char* argv[])
   }
 
   {
-
     pairg::timer T1;
 
     // Create and fill matrices A and B to multiply
-    pairg::matrixOps::crsMat_t A = pairg::matrixOps::randomMatrix (dim, minNNZ, maxNNZ, false);
-    pairg::matrixOps::crsMat_t B = pairg::matrixOps::randomMatrix (dim, minNNZ, maxNNZ, false);
+    pairg::matrixOps::crsMat_t A = pairg::matrixOps::createRandomMatrix (dim, minNNZ, maxNNZ, false);
+    pairg::matrixOps::crsMat_t B = pairg::matrixOps::createRandomMatrix (dim, minNNZ, maxNNZ, false);
+    //pairg::matrixOps::crsMat_t A = pairg::matrixOps::createIdentityMatrix (dim);
+    //pairg::matrixOps::crsMat_t B = pairg::matrixOps::createIdentityMatrix (dim);
+    std::cout << "Time to build sample matrices (ms): " << T1.elapsed() << "\n";
 
-    pairg::matrixOps::printMatrix(A, 1);
-    pairg::matrixOps::printMatrix(B, 1);
-
-    double constructionTime = T1.elapsed();
-    std::cout << "Time to build sample matrices (ms): " << constructionTime << "\n";
+    pairg::matrixOps::printMatrix(A, 3);
+    pairg::matrixOps::printMatrix(B, 3);
 
     pairg::timer T2;
-
     pairg::matrixOps::crsMat_t C = pairg::matrixOps::multiplyMatrices (A,B);
-
-    double multiplicationTime = T2.elapsed();
-    std::cout << "Time to multiply sample matrices (ms): " << multiplicationTime << "\n";
+    std::cout << "Time to multiply sample matrices (ms): " << T2.elapsed() << "\n";
 
     pairg::matrixOps::printMatrix(C, 3);
 
+    pairg::timer T3;
+    pairg::matrixOps::crsMat_t D = pairg::matrixOps::addMatrices (A,B);
+    std::cout << "Time to add sample matrices (ms): " << T3.elapsed() << "\n";
+
+    pairg::matrixOps::printMatrix(D, 3);
+
+    pairg::timer T4;
+    pairg::matrixOps::crsMat_t E = pairg::matrixOps::power (A, 10);
+    std::cout << "Time to raise power of sample matrix (ms): " << T4.elapsed() << "\n";
+
+    pairg::matrixOps::printMatrix(E, 3);
   }
 
     Kokkos::finalize();
