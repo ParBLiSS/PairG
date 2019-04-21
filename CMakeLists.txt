@@ -41,5 +41,24 @@ include_directories("${PROJECT_BINARY_DIR}")
 file(WRITE "${PROJECT_BINARY_DIR}/KokkosKernels_config.h" "//dummy file for kokkos-kernels to include")
 include_directories("${PROJECT_BINARY_DIR}")
 
+### Protobuf stuff
+#NOTE: user is expected to set the following variable PROTOBUF_DIR 
+set(PROTOBUF_DIR CACHE STRING "absolute path to protobuf installation directory")
+set(PROTOBUF_INCLUDE_DIR "${PROTOBUF_DIR}/include")
+set(PROTOBUF_LIBRARY "${PROTOBUF_DIR}/lib/libprotobuf.so")
+set(PROTOBUF_PROTOC_EXECUTABLE "${PROTOBUF_DIR}/bin/protoc")
+if(EXISTS "${PROTOBUF_INCLUDE_DIR}" AND EXISTS "${PROTOBUF_LIBRARY}" AND EXISTS "${PROTOBUF_PROTOC_EXECUTABLE}")
+  message(STATUS "Protobuf libraries, header files and executables located")
+else()
+  message(FATAL_ERROR "Protobuf path is invalid, cannot find required libraries, header files or executables. Set the cmake variable PROTOBUF_DIR properly.")
+endif()
+find_package(Protobuf REQUIRED)
+
+#generate C++ proto files
+include_directories(${PROTOBUF_INCLUDE_DIR})
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS "${PROJECT_SOURCE_DIR}/ext/vg/vg.proto")
+add_library(vg_protobuf "vg.pb.cc")
+
+###generate main executable
 add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/main.cpp")
-target_link_libraries(pairmap2graph kokkos)
+target_link_libraries(pairmap2graph kokkos ${PROTOBUF_LIBRARY} vg_protobuf)
