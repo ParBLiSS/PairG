@@ -39,15 +39,15 @@ namespace pairg
     typename matrixOps::scalar_view_t values("values", nnz);
     typename matrixOps::lno_view_t rowmap("rowmap", nrows + 1);
 
-    for(int i = 0; i < nnz; i++) {
+    for(matrixOps::size_type i = 0; i < nnz; i++) {
       values(i) = 1;
     }
 
-    for(int i = 0; i < nnz; i++) {
+    for(matrixOps::size_type i = 0; i < nnz; i++) {
       entries(i) = g.diCharGraph.adjcny_out[i];
     }
 
-    for(int i = 0; i < nrows + 1; i++) {
+    for(matrixOps::lno_t i = 0; i < nrows + 1; i++) {
       rowmap(i) = g.diCharGraph.offsets_out[i];
     }
 

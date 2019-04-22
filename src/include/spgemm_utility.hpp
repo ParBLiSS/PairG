@@ -12,6 +12,7 @@
 #include <cstdlib>     
 #include <type_traits>
 #include <cassert>
+#include <typeinfo> 
 
 //External includes
 #include "Kokkos_Core.hpp"
@@ -81,7 +82,7 @@ namespace pairg
             (&kh, A.graph.row_map, A.graph.entries, 
              B.graph.row_map, B.graph.entries, row_map_C);
 
-        lno_t max_result_nnz = kh.get_spadd_handle()->get_max_result_nnz();
+        size_type max_result_nnz = kh.get_spadd_handle()->get_max_result_nnz();
 
         if (max_result_nnz) {
           entries_C = lno_nnz_view_t ("C entries", max_result_nnz);
@@ -145,7 +146,7 @@ namespace pairg
             row_map_C
             );
 
-        lno_t c_nnz_size = kh.get_spgemm_handle()->get_c_nnz();
+        size_type c_nnz_size = kh.get_spgemm_handle()->get_c_nnz();
         if (c_nnz_size) {
           entries_C = lno_nnz_view_t (Kokkos::ViewAllocateWithoutInitializing("entries_C"), c_nnz_size);
           values_C = scalar_view_t (Kokkos::ViewAllocateWithoutInitializing("values_C"), c_nnz_size);
@@ -222,7 +223,7 @@ namespace pairg
        *                              2 - print matrix properties and limited set of values
        *                              3 - print matrix properties and all values
        */
-      static bool printMatrix(const crsMat_t &A, int verbose)
+      static void printMatrix(const crsMat_t &A, int verbose)
       {
         std::cout << "INFO, pairg::matrixOps::printMatrix, row map size:" << A.graph.row_map.extent(0) << "\n";
         std::cout << "INFO, pairg::matrixOps::printMatrix, entries (nnz):" << A.graph.entries.extent(0) << "\n";
@@ -236,6 +237,18 @@ namespace pairg
         }
 
         std::cout << "\n";
+      }
+
+      /**
+       * @brief   a small utility function to print size (in bytes) of commonly 
+       *          used types during matrix operations
+       */
+      static void printTypeSizes()
+      {
+        std::cout << "Printing out type sizes:" << "\n";
+        std::cout << "scalar_t is: " << sizeof(scalar_t)  << "\n"; 
+        std::cout << "size_type is: " << sizeof(size_type)  << "\n"; 
+        std::cout << "lno_t is: " << sizeof(lno_t)  << "\n"; 
       }
 
       /**
@@ -280,8 +293,8 @@ namespace pairg
       /**
        * @brief                       create a random square matrix for testing, using kokkos-kernels
        * @param[in] nrows             count of rows
-       * @param[in] minNNZ            minimum non-zero elements per row
-       * @param[in] maxNNZ            maximum non-zero elements per row
+       * @param[in] minNNZ            minimum non-zero elements * per row *
+       * @param[in] maxNNZ            maximum non-zero elements * per row *
        * @param[in] sortRows          sort indices within each row 
        * @return                      the generated matrix
        * @details                     - value of each non-zero element is set to 1

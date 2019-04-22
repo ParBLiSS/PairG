@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     pairg::timer T1;
 
     pairg::matrixOps::crsMat_t adj_mat = pairg::getAdjacencyMatrix(parameters);
-    std::cout << "INFO, pairg::main, Time to build adjacency matrices (ms): " << T1.elapsed() << "\n";
+    std::cout << "INFO, pairg::main, Time to build adjacency matrix (ms): " << T1.elapsed() << "\n";
     pairg::matrixOps::printMatrix(adj_mat, 1);
 
     pairg::timer T2;
