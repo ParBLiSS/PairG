@@ -49,6 +49,9 @@ namespace pairg
         <size_type, lno_t, scalar_t,
         typename Device::execution_space, typename Device::memory_space,typename Device::memory_space > KernelHandle;
 
+      //for kokkos::parallel_for
+      typedef Kokkos::RangePolicy<Device::execution_space, lno_t> range_type;
+
       /**
        * @brief     boolean addition of two matrices 
        * @details   using API from kokkos-kernels/unit_test/sparse/Test_Sparse_spadd.hpp
@@ -205,16 +208,39 @@ namespace pairg
       /**
        * @brief                       query value at given coordinates in a given matrix
        * @note                        row and column indices should be 0-based
+       *                              the matrix entries in each row are assumed sorted
        */
-      static bool queryValue(const crsMat_t &A, lno_t row, lno_t col)
+      static bool queryValue(const crsMat_t &A, lno_t i, lno_t j)
       {
+        if (i >= A.numRows ()) {
+          return false;
+        }
+
+        //find start and end range within entries array 
+        size_type begin = A.graph.row_map(i);
+        size_type end = A.graph.row_map(i + 1);
+
+        return std::binary_search(A.graph.entries.data() + begin, A.graph.entries.data() + end, j);
       }
 
       /**
        * @brief                       sort indices within each row, required for fast querying
        */
-      static crsMat_t indexForQuery(const crsMat_t &A)
+      static void indexForQuery(crsMat_t &A)
       {
+        lno_t num_rows = A.numRows();
+        size_type nnz = A.graph.entries.extent(0);
+
+        //Functor to sort entries within each row
+        auto sortEntries = [&](const lno_t i)
+        {
+          size_type begin = A.graph.row_map(i);
+          size_type end = A.graph.row_map(i+1);
+          std::sort(A.graph.entries.data() + begin, A.graph.entries.data() + end);
+        };
+
+        //Sort all rows in parallel
+        Kokkos::parallel_for("pairg::matrixOps::indexForQuery", range_type(0, num_rows), sortEntries);
       }
 
       /**

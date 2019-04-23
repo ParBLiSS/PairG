@@ -67,6 +67,9 @@ namespace pairg
     matrixOps::crsMat_t C = matrixOps::multiplyMatrices( matrixOps::power(A, p.d_low), 
                                               matrixOps::power (B, p.d_up - p.d_low)); 
 
+    //sort entries within each row
+    matrixOps::indexForQuery(C); 
+
     return C;
   }
 }
