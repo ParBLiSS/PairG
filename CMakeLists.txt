@@ -18,6 +18,9 @@ IF(NOT CMAKE_BUILD_TYPE)
     FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+# Check if the user wants to build google test applications
+OPTION(BUILD_TESTS "Inform whether test applications should be built" ON)
+
 # Save libs and executables in the same place
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "Output directory for libraries" )
 
@@ -41,6 +44,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 file(WRITE "${PROJECT_BINARY_DIR}/KokkosKernels_config.h" "//dummy file for kokkos-kernels to include")
 include_directories("${PROJECT_BINARY_DIR}")
 
+
 ### Protobuf stuff
 #NOTE: user is expected to set the following variable PROTOBUF_DIR 
 set(PROTOBUF_DIR CACHE STRING "absolute path to protobuf installation directory")
@@ -58,6 +62,9 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS "${PROJECT_SOURCE_DIR}/ext/vg/vg.proto")
 add_library(vg_protobuf "vg.pb.cc")
+
+###generate test executables if requested
+add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
 
 ###generate main executable
 add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/main.cpp")

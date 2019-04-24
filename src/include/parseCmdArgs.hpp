@@ -48,6 +48,8 @@ namespace pairg
       clipp::operator<<(std::cout, clipp::make_man_page(cli, argv[0])) << std::endl;
       exit(1);
     }
+
+    assert (param.d_up >= param.d_low);
   }
 }
 

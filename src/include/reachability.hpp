@@ -7,6 +7,7 @@
 #define PAIR_REACHABILITY_HPP
 
 #include "spgemm_utility.hpp"
+#include "parseCmdArgs.hpp"
 
 //External includes
 #include "PaSGAL/graphLoad.hpp"
