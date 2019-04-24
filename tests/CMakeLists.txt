@@ -6,4 +6,7 @@ if (BUILD_TESTS)
   add_executable(test_graph_load test_main.cpp test_graphLoad.cpp)
   target_link_libraries(test_graph_load kokkos vg_protobuf ${PROTOBUF_LIBRARY})
 
+  add_executable(test_pairing test_main.cpp test_pairing.cpp)
+  target_link_libraries(test_pairing kokkos vg_protobuf ${PROTOBUF_LIBRARY})
+
 endif(BUILD_TESTS)

@@ -212,7 +212,8 @@ namespace pairg
        */
       static bool queryValue(const crsMat_t &A, lno_t i, lno_t j)
       {
-        if (i >= A.numRows ()) {
+        if (i >= A.numRows () || j >= A.numCols ()) {
+          std::cout << "WARNING, pairg::matrixOps::queryValue, query index out of range" << std::endl;
           return false;
         }
 

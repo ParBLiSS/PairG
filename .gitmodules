@@ -1,9 +1,6 @@
 [submodule "ext/kokkos-kernels"]
 	path = ext/kokkos-kernels
 	url = https://github.com/kokkos/kokkos-kernels.git
-[submodule "ext/seqtk"]
-	path = ext/seqtk
-	url = https://github.com/lh3/seqtk.git
 [submodule "ext/clipp"]
 	path = ext/clipp
 	url = https://github.com/muellan/clipp.git
