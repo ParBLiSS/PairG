@@ -12,4 +12,6 @@ cmake -DCMAKE_CXX_COMPILER=icpc \
 -DKOKKOS_ARCH=SKX \
 -DKOKKOS_ENABLE_OPENMP=TRUE \
 -DPROTOBUF_DIR=/work/04042/cjain7/stampede2/Intel/utility/protobuf-3.6.0/local_install ..
+
+make -j4
 ```
