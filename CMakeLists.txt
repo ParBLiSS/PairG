@@ -39,10 +39,14 @@ include_directories("${PROJECT_SOURCE_DIR}/ext/kokkos-kernels/src/sparse/impl")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/kokkos" ${PROJECT_BINARY_DIR}/kokkos)
 include_directories(${Kokkos_INCLUDE_DIRS_RET})
-include_directories("${PROJECT_BINARY_DIR}")
 
 file(WRITE "${PROJECT_BINARY_DIR}/KokkosKernels_config.h" "//dummy file for kokkos-kernels to include")
 include_directories("${PROJECT_BINARY_DIR}")
+
+### Include and compile htslib
+include_directories("${PROJECT_SOURCE_DIR}/ext/htslib")
+add_custom_target(LIBHTS COMMAND make WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/ext/htslib" COMMENT "Compiling htslib") 
+set(HTS_LIBRARY "${PROJECT_SOURCE_DIR}/ext/htslib/libhts.so")
 
 
 ### Protobuf stuff
@@ -57,15 +61,20 @@ else()
   message(FATAL_ERROR "Protobuf path is invalid, cannot find required libraries, header files or executables. Set the cmake variable PROTOBUF_DIR properly.")
 endif()
 find_package(Protobuf REQUIRED)
-
-#generate C++ proto files
 include_directories(${PROTOBUF_INCLUDE_DIR})
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS "${PROJECT_SOURCE_DIR}/ext/vg/vg.proto")
-add_library(vg_protobuf "vg.pb.cc")
+
+### Include libvgio
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS "${PROJECT_SOURCE_DIR}/ext/libvgio/deps/vg.proto")
+add_custom_target(SYMLNK COMMAND ${CMAKE_COMMAND} -E create_symlink . vg  WORKING_DIRECTORY "${PROJECT_BINARY_DIR}" COMMENT "Adding symbolic link vg") 
+include_directories("${PROJECT_SOURCE_DIR}/ext/libvgio/include")
+file(GLOB VGIO_SRC "${PROJECT_SOURCE_DIR}/ext/libvgio/src/*.cpp")
+add_library(LIBVGIO ${PROTO_SRCS} ${VGIO_SRC})
+
 
 ###generate test executables if requested
 add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
 
 ###generate main executable
 add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/main.cpp")
-target_link_libraries(pairmap2graph kokkos ${PROTOBUF_LIBRARY} vg_protobuf)
+add_dependencies(pairmap2graph LIBHTS SYMLNK)
+target_link_libraries(pairmap2graph kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})

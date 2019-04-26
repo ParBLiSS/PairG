@@ -4,9 +4,9 @@ add_definitions(-DPROJECT_TEST_DATA_DIR=${PROJECT_SOURCE_DIR}/tests/data)
 if (BUILD_TESTS)
 
   add_executable(test_graph_load test_main.cpp test_graphLoad.cpp)
-  target_link_libraries(test_graph_load kokkos vg_protobuf ${PROTOBUF_LIBRARY})
+  target_link_libraries(test_graph_load kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})
 
   add_executable(test_pairing test_main.cpp test_pairing.cpp)
-  target_link_libraries(test_pairing kokkos vg_protobuf ${PROTOBUF_LIBRARY})
+  target_link_libraries(test_pairing kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})
 
 endif(BUILD_TESTS)

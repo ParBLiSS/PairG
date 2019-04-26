@@ -10,3 +10,9 @@
 [submodule "ext/catch"]
 	path = ext/catch
 	url = https://github.com/catchorg/Catch2.git
+[submodule "ext/libvgio"]
+	path = ext/libvgio
+	url = https://github.com/vgteam/libvgio.git
+[submodule "ext/htslib"]
+	path = ext/htslib
+	url = https://github.com/samtools/htslib.git
