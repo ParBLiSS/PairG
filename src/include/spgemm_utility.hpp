@@ -27,7 +27,7 @@ namespace pairg
     public:
 
       //value type in matrices
-      typedef int scalar_t;
+      typedef int8_t scalar_t;
 
       //locus type (or coordinate type)
       typedef int lno_t;
@@ -97,8 +97,8 @@ namespace pairg
 
         //Compute values in C
         KokkosSparse::Experimental::spadd_numeric (&kh, 
-            A.graph.row_map, A.graph.entries, A.values, 1,
-            B.graph.row_map, B.graph.entries, B.values, 1,
+            A.graph.row_map, A.graph.entries, A.values, (int8_t)1,
+            B.graph.row_map, B.graph.entries, B.values, (int8_t)1,
             row_map_C, entries_C, values_C);
 
         //reset nnz values in C to 1

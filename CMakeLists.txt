@@ -5,7 +5,7 @@ include(CheckCXXCompilerFlag)
 project(pairmap2graph)
 
 ##### General Compilation Settings
-set(CMAKE_CXX_FLAGS "-w ${CMAKE_CXX_FLAGS} --std=c++11")
+set(CMAKE_CXX_FLAGS "-w ${CMAKE_CXX_FLAGS} --std=c++14")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")

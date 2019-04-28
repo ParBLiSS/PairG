@@ -52,6 +52,7 @@ namespace psgl
           vg::Graph g = vg::io::inputStream(filename);
 
           //vertex numbering in vg starts from 1, so adding a dummy vertex with id '0'
+          //we are assuming that vg's vertex ids are contiguous 1,2,...g.node_size()
           diGraph.addVertexCount(1);
           diGraph.initVertexSequence(0, "N");
 
@@ -61,6 +62,8 @@ namespace psgl
           for (int i = 0; i < g.node_size(); i++)
           {
             auto vg_vertex = g.node(i);
+
+            assert(vg_vertex.id() <= g.node_size());
 
             //add vertex to diGraph
             diGraph.initVertexSequence(vg_vertex.id(), vg_vertex.sequence());
