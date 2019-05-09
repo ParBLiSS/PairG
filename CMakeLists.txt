@@ -5,7 +5,7 @@ include(CheckCXXCompilerFlag)
 project(pairmap2graph)
 
 ##### General Compilation Settings
-set(CMAKE_CXX_FLAGS "-w ${CMAKE_CXX_FLAGS} --std=c++14")
+set(CMAKE_CXX_FLAGS "-w ${CMAKE_CXX_FLAGS} --std=c++11")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
@@ -69,6 +69,7 @@ add_custom_target(SYMLNK COMMAND ${CMAKE_COMMAND} -E create_symlink . vg  WORKIN
 include_directories("${PROJECT_SOURCE_DIR}/ext/libvgio/include")
 file(GLOB VGIO_SRC "${PROJECT_SOURCE_DIR}/ext/libvgio/src/*.cpp")
 add_library(LIBVGIO ${PROTO_SRCS} ${VGIO_SRC})
+add_dependencies(LIBVGIO SYMLNK)
 
 
 ###generate test executables if requested
