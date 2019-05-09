@@ -266,17 +266,6 @@ namespace psgl
           for(auto off : offsets_out)
             assert(off >=0 && off <= this->numEdges); 
         }
-
-        //topologically sorted order
-        {
-          for(int32_t i = 0; i < this->numVertices; i++)
-            for(auto j = offsets_in[i]; j < offsets_in[i+1]; j++)
-              assert( adjcny_in[j] < i);
-
-          for(int32_t i = 0; i < this->numVertices; i++)
-            for(auto j = offsets_out[i]; j < offsets_out[i+1]; j++)
-              assert( adjcny_out[j] > i);
-        }
       }
   };
 }

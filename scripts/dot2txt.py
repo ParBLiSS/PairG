@@ -4,9 +4,10 @@
 # @brief   convert dot formatted compressed DBG from splitMEM to our .txt format
 #            note: splitMEM.cc was modified to print vertex DNA labels as well
 #                  (set OPT_DisplaySeq=1 and OPT_SeqToDisplay= <int>::max() )           
-#            note: After reading code in splitMEM, we realized that it replaces 'N' 
-#                  with 'A' character, and it builds suffix tree while merging adjacent 
-#                  fasta strings with a 'N' character in between
+#            note: After reading code in splitMEM, we realized that it replaces each 'N' 
+#                  character with 'A', and it builds the concatenated string by merging  
+#                  adjacent fasta records while putting a 'N' character in between, and 
+#                  at the very end
 # @usage   python dot2txt.py "MEM or kmer size" "dot file"  >  ".txt file"
 
 import sys
@@ -29,7 +30,8 @@ with open(dotFile) as fp:
     if len(tokens) == 2: # must be a vertex label
       currentVertexId += 1
       assert int(tokens[0]) == currentVertexId
-      label = re.sub(r'[^ACGTN]', '', tokens[1])
+      label = re.sub(r'[^ACGTN\$]', '', tokens[1])  #get rid of ambiguous character
+      label = re.sub(r'[\$]', 'N', label) # get rid of ambiguous characters 
       vertexLabels.append(label)
     elif len(tokens) == 3:
       if tokens[1] == "->": # must be an edge
@@ -47,6 +49,10 @@ edges = list(dict.fromkeys(edges))
 
 trimVertexLabel = [0] * len(vertexLabels)
 for (u,v) in edges:
+  assert u >= 0
+  assert u < len(vertexLabels)
+  assert v >= 0
+  assert v < len(vertexLabels)
   trimVertexLabel[v] = 1
 
 for i in range(0, len(vertexLabels)):
@@ -57,12 +63,12 @@ for i in range(0, len(vertexLabels)):
 # Compute out-neighbors of each vertex
 ####
 
-edge_index = {}
+out_index = {}
 for (u,v) in edges:
-  edge_index[u] = []
+  out_index[u] = []
 
 for (u,v) in edges:
-  edge_index[u].append(v)
+  out_index[u].append(v)
 
 ####
 # Finally print the contents
@@ -70,9 +76,8 @@ for (u,v) in edges:
 
 print len(vertexLabels)
 for u in range(0, len(vertexLabels)):
-  if u in edge_index:
-    for v in edge_index[u]:
+  if u in out_index:   #print out-neighbors
+    for v in out_index[u]:
       print v,
-  print vertexLabels[u]
-
-
+  assert len(vertexLabels[u]) > 0
+  print vertexLabels[u] #print label

@@ -128,13 +128,6 @@ namespace psgl
           assert(offsets_out.front() == 0 && offsets_out.back() == this->numEdges);
         }
 
-        //topologically sorted order
-        {
-          for(int32_t i = 0; i < this->numVertices; i++)
-            for(auto j = offsets_out[i]; j < offsets_out[i+1]; j++)
-              assert( i < adjcny_out[j] );
-        }
-
         //prefix sequence lengths
         {
           for(int32_t i = 1; i < this->numVertices; i++)
@@ -337,79 +330,89 @@ namespace psgl
       {
         std::vector<int32_t> order(this->numVertices);
 
-        topologicalSort(order); 
-
-        std::cout << "INFO, psgl::CSR_container::sort, topological sort computed, bandwidth = " << directedBandwidth(order) << std::endl;
-        std::cout << "INFO, psgl::CSR_container::sort, relabeling graph based on the computed order" << std::endl;
-
-        //Sorted position to vertex id mapping (reverse order)
-        //preserve the old IDs before relabeling for final output reporting
-        for(int32_t i = 0; i < this->numVertices; i++)
-          this->originalVertexId[ order[i] ] = i;
-
-        //Relabel the graph completely in this order
+        if ( ! checkCyclic() )
         {
-          //meta-data
+
+          std::cout << "INFO, psgl::CSR_container::sort, acyclic graph detected" << std::endl;
+          topologicalSort(order); 
+          std::cout << "INFO, psgl::CSR_container::sort, relabeling graph based on the computed order" << std::endl;
+
+          //Sorted position to vertex id mapping (reverse order)
+          //preserve the old IDs before relabeling for final output reporting
+          for(int32_t i = 0; i < this->numVertices; i++)
           {
-            std::vector<std::string> vertex_metadata_new(this->numVertices);
-
-            for (int32_t i = 0; i < this->numVertices; i++)
-              vertex_metadata_new[i] = vertex_metadata[ originalVertexId[i] ];
-
-            vertex_metadata = vertex_metadata_new;
+            this->originalVertexId[ order[i] ] = i;
           }
 
-          //adjacency lists
+          //Relabel the graph completely in this order
           {
-            std::vector<int32_t> adjcny_in_new;  
-            std::vector<int32_t> adjcny_out_new;  
-
-
-            for(int32_t i = 0; i < this->numVertices; i++)
+            //meta-data
             {
-              std::vector<int32_t> tmp;
+              std::vector<std::string> vertex_metadata_new(this->numVertices);
 
-              for(auto j = offsets_in[ originalVertexId[i] ]; j < offsets_in[ originalVertexId[i] + 1 ]; j++)
-                tmp.push_back( order[adjcny_in[j]] );
+              for (int32_t i = 0; i < this->numVertices; i++)
+                vertex_metadata_new[i] = vertex_metadata[ originalVertexId[i] ];
 
-              //insert adjacency elements in sorted order
-              std::sort(tmp.begin(), tmp.end());
-
-              adjcny_in_new.insert(adjcny_in_new.end(), tmp.begin(), tmp.end());
+              vertex_metadata = vertex_metadata_new;
             }
 
-            for(int32_t i = 0; i < this->numVertices; i++)
+            //adjacency lists
             {
-              std::vector<int32_t> tmp;
+              std::vector<int32_t> adjcny_in_new;  
+              std::vector<int32_t> adjcny_out_new;  
 
-              for(auto j = offsets_out[ originalVertexId[i] ]; j < offsets_out[ originalVertexId[i] + 1 ]; j++)
-                tmp.push_back( order[adjcny_out[j]] );
 
-              //insert adjacency elements in sorted order
-              std::sort(tmp.begin(), tmp.end());
+              for(int32_t i = 0; i < this->numVertices; i++)
+              {
+                std::vector<int32_t> tmp;
 
-              adjcny_out_new.insert(adjcny_out_new.end(), tmp.begin(), tmp.end());
+                for(auto j = offsets_in[ originalVertexId[i] ]; j < offsets_in[ originalVertexId[i] + 1 ]; j++)
+                  tmp.push_back( order[adjcny_in[j]] );
+
+                //insert adjacency elements in sorted order
+                std::sort(tmp.begin(), tmp.end());
+
+                adjcny_in_new.insert(adjcny_in_new.end(), tmp.begin(), tmp.end());
+              }
+
+              for(int32_t i = 0; i < this->numVertices; i++)
+              {
+                std::vector<int32_t> tmp;
+
+                for(auto j = offsets_out[ originalVertexId[i] ]; j < offsets_out[ originalVertexId[i] + 1 ]; j++)
+                  tmp.push_back( order[adjcny_out[j]] );
+
+                //insert adjacency elements in sorted order
+                std::sort(tmp.begin(), tmp.end());
+
+                adjcny_out_new.insert(adjcny_out_new.end(), tmp.begin(), tmp.end());
+              }
+
+              adjcny_in = adjcny_in_new;
+              adjcny_out = adjcny_out_new;
             }
 
-            adjcny_in = adjcny_in_new;
-            adjcny_out = adjcny_out_new;
+            //offsets
+            {
+              std::vector<int32_t> offsets_in_new (this->numVertices + 1, 0);
+              std::vector<int32_t> offsets_out_new (this->numVertices + 1, 0);
+
+              for(int32_t i = 0; i < this->numVertices; i++)
+                offsets_in_new[i + 1] = offsets_in_new[i] + ( offsets_in[ originalVertexId[i] + 1] - offsets_in[ originalVertexId[i] ] ); 
+
+              for(int32_t i = 0; i < this->numVertices; i++)
+                offsets_out_new[i + 1] = offsets_out_new[i] + ( offsets_out[ originalVertexId[i] + 1] - offsets_out[ originalVertexId[i] ] ); 
+
+              offsets_in  = offsets_in_new;
+              offsets_out = offsets_out_new;
+            }
+
           }
 
-          //offsets
-          {
-            std::vector<int32_t> offsets_in_new (this->numVertices + 1, 0);
-            std::vector<int32_t> offsets_out_new (this->numVertices + 1, 0);
-
-            for(int32_t i = 0; i < this->numVertices; i++)
-              offsets_in_new[i + 1] = offsets_in_new[i] + ( offsets_in[ originalVertexId[i] + 1] - offsets_in[ originalVertexId[i] ] ); 
-
-            for(int32_t i = 0; i < this->numVertices; i++)
-              offsets_out_new[i + 1] = offsets_out_new[i] + ( offsets_out[ originalVertexId[i] + 1] - offsets_out[ originalVertexId[i] ] ); 
-
-            offsets_in  = offsets_in_new;
-            offsets_out = offsets_out_new;
-          }
-
+        }
+        else
+        {
+          std::cout << "INFO, psgl::CSR_container::sort, cyclic graph detected, skipping topological sort" << std::endl;
         }
 
         //compute prefix sequence length
@@ -487,7 +490,6 @@ namespace psgl
        * @brief                   compute topological sort order using several runs
        *                          of Kahn's algorithm
        *                          ties are decided randomly
-       * @param[in]   runs        count of random runs to execute
        * @param[out]  finalOrder  vertex ordering (vertex [0 - n-1] to position [0 - n-1] 
        *                          mapping, i.e. finalOrder[0] denotes where v_0 should go)
        * @details                 ordering with least directed bandwidth is chosen 
@@ -533,61 +535,48 @@ namespace psgl
       }
 
       /**
-       * @brief                   compute maximum distance between connected vertices given the new ordering (a.k.a. 
-       *                          directed bandwidth), while noting that each node is a chain of characters
-       * @param[in]   finalOrder  vertex ordering (vertex [0 - n-1] to position [0 - n-1] 
-       *                          mapping, i.e. finalOrder[0] denotes where v_0 should go)
-       * @return                  directed graph bandwidth
-       * @details                 output of this fn decides the maximum count of prior columns we need during DP 
+       * @brief                   check if the graph is cylic using Kahn's algorithm
+       *                          https://en.wikipedia.org/wiki/Topological_sorting
+       * @return                  true if cyclic, false otherwise
        */
-      std::size_t directedBandwidth(const std::vector<int32_t> &finalOrder) const
+      bool checkCyclic() const 
       {
-        assert(finalOrder.size() == this->numVertices);
+        std::vector<int32_t> in_degree(this->numVertices, 0);
 
-        std::size_t bandwidth = 0;   //temporary value 
+        //compute in-degree of all vertices in graph
+        for (int32_t i = 0; i < this->numVertices; i++)
+          in_degree[i] = offsets_in[i+1] -  offsets_in[i];
 
-        //Sorted position to vertex mapping (reverse order)
-        std::vector<int32_t> reverseOrder(this->numVertices);
-        for(int32_t i = 0; i < this->numVertices; i++)
-          reverseOrder[ finalOrder[i] ] = i;
+        //intermediate data structure 
+        std::list<int32_t> Q;  
 
-        std::pair<int32_t, int32_t> logFarthestVertices;
-        std::pair<int32_t, int32_t> logFarthestPositions;
+        //copy of degree vector
+        auto deg = in_degree;
 
-        //iterate over all vertices in graph to compute bandwidth
-        for(int32_t i = 0; i < this->numVertices; i++)
+        //push 0 in-degree vertices to Q
+        for (int32_t i = 0; i < this->numVertices; i++)
+          if (deg[i] == 0)
+            Q.emplace_back(i);
+
+        while(!Q.empty())
         {
-          //iterate over neighbors of vertex i
-          for(auto j = offsets_out[i]; j < offsets_out[i+1]; j++)
-          {
-            auto from_pos = finalOrder[i];
-            auto to_pos = finalOrder[ adjcny_out[j] ];
+          //pick new vertex from Q
+          auto it = random::select(Q.begin(), Q.end());
+          int32_t v = *it;
+          Q.erase(it);
 
-            //for a valid topological sort order
-            assert(to_pos > from_pos);
-
-            //now the bandwidth between vertex i and its neighbor equals
-            //(to_pos - from_pos) plus the width of intermediate vertices
-
-            std::size_t tmp_bandwidth = to_pos - from_pos;
-
-            for(auto k = from_pos + 1; k < to_pos; k++)
-              tmp_bandwidth += vertex_metadata[reverseOrder[k]].length() - 1;
-
-            if(tmp_bandwidth > bandwidth)
-            {
-              bandwidth = tmp_bandwidth;
-              logFarthestVertices = std::make_pair(i, adjcny_out[j]);
-              logFarthestPositions = std::make_pair(from_pos, to_pos);
-            }
-          }
+          //remove out-edges of vertex 'v'
+          for(auto j = offsets_out[v]; j < offsets_out[v+1]; j++)
+            if (--deg[ adjcny_out[j] ] == 0)
+              Q.emplace_back (adjcny_out[j]);     //add to Q
         }
 
-#ifdef DEBUG
-        std::cerr << "DEBUG, psgl::CSR_container::directedBandwidth, Bandwidth deciding positions = " << logFarthestPositions.first << ", " << logFarthestPositions.second << std::endl;
-#endif
+        //push 0 in-degree vertices to Q
+        for (int32_t i = 0; i < this->numVertices; i++)
+          if (deg[i] != 0)
+            return true;
 
-        return bandwidth;
+        return false;
       }
   };
 }
