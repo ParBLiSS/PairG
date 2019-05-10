@@ -45,15 +45,23 @@ int main(int argc, char* argv[])
     std::cout << "INFO, pairg::main, Time to build result matrix (ms): " << T2.elapsed() << "\n";
     pairg::matrixOps::printMatrix(valid_pairs_mat, 1);
 
-    pairg::timer T3;
-    int search_count = 1000;
+    int search_count = 1000000;
+    std::vector< std::pair<int,int> > random_pairs;
     for(int i = 0; i < search_count; i++)
     {
       auto p = getRandomPair (valid_pairs_mat.numRows());
+      random_pairs.push_back(p);
+    }
+
+    pairg::timer T3;
+    for(auto &p : random_pairs)
+    {
       bool exists = pairg::matrixOps::queryValue (valid_pairs_mat, p.first, p.second); 
     }
     std::cout << "INFO, pairg::main, Time to execute " << search_count << " queries (ms): " << T3.elapsed() << "\n";
   }
+
+  std::cout << std::flush;
 
   Kokkos::finalize();
 }

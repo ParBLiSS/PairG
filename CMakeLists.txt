@@ -45,6 +45,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 ### Include and compile htslib
 include_directories("${PROJECT_SOURCE_DIR}/ext/htslib")
+# Advice: in case htslib is missing some core libraries, install them  
 add_custom_target(LIBHTS COMMAND make WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/ext/htslib" COMMENT "Compiling htslib") 
 set(HTS_LIBRARY "${PROJECT_SOURCE_DIR}/ext/htslib/libhts.so")
 
