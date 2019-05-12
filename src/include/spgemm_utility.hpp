@@ -14,6 +14,9 @@
 #include <cassert>
 #include <typeinfo> 
 
+//Own includes
+#include "utility.hpp" 
+
 //External includes
 #include "Kokkos_Core.hpp"
 #include "KokkosSparse_CrsMatrix.hpp"
@@ -141,6 +144,8 @@ namespace pairg
         lno_nnz_view_t  entries_C;
         scalar_view_t values_C;
 
+        pairg::timer T1;
+
         // Get count of nnz in matrix C
         KokkosSparse::Experimental::spgemm_symbolic (&kh, 
             num_rows_A, num_rows_B, num_cols_B,
@@ -148,6 +153,9 @@ namespace pairg
             B.graph.row_map, B.graph.entries, false,
             row_map_C
             );
+
+        std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute symbolic phase (ms): " << T1.elapsed() << "\n";
+
 
         size_type c_nnz_size = kh.get_spgemm_handle()->get_c_nnz();
         if (c_nnz_size) {
@@ -158,6 +166,8 @@ namespace pairg
           std::cout << "WARNING, pairg::matrixOps::multiplyMatrices, c_nnz_size == 0" << std::endl;
         }
 
+        pairg::timer T2;
+
         // Fill matrix multiplication values 
         KokkosSparse::Experimental::spgemm_numeric (&kh, 
             num_rows_A, num_rows_B, num_cols_B,
@@ -165,6 +175,8 @@ namespace pairg
             B.graph.row_map, B.graph.entries, B.values, false,
             row_map_C, entries_C, values_C
             );
+
+        std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute numeric phase (ms): " << T2.elapsed() << "\n";
 
         //reset nnz values in C to 1
         for(size_type i = 0; i < c_nnz_size; i++) {

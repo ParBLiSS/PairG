@@ -64,14 +64,28 @@ namespace pairg
    */
   matrixOps::crsMat_t buildValidPairsMatrix(const matrixOps::crsMat_t &A, const Parameters &p)
   {
+    pairg::timer T1;
     matrixOps::crsMat_t B = matrixOps::addMatrices(A, matrixOps::createIdentityMatrix(A.numRows()));
-    matrixOps::crsMat_t C = matrixOps::multiplyMatrices( matrixOps::power(A, p.d_low), 
-                                              matrixOps::power (B, p.d_up - p.d_low)); 
+    std::cout << "INFO, pairg::buildValidPairsMatrix, time to add identity matrix (ms): " << T1.elapsed() << "\n";
+
+    pairg::timer T2;
+    matrixOps::crsMat_t C = matrixOps::power(A, p.d_low);
+    std::cout << "INFO, pairg::buildValidPairsMatrix, time to raise adjacency matrix (ms): " << T2.elapsed() << "\n";
+
+    pairg::timer T3;
+    matrixOps::crsMat_t D = matrixOps::power (B, p.d_up - p.d_low);
+    std::cout << "INFO, pairg::buildValidPairsMatrix, time to raise adjacency+identity matrix (ms): " << T3.elapsed() << "\n";
+
+    pairg::timer T4;
+    matrixOps::crsMat_t E = matrixOps::multiplyMatrices(C,D); 
+    std::cout << "INFO, pairg::buildValidPairsMatrix, time to execute final multiplication (ms): " << T4.elapsed() << "\n";
 
     //sort entries within each row
-    matrixOps::indexForQuery(C); 
+    pairg::timer T5;
+    matrixOps::indexForQuery(E); 
+    std::cout << "INFO, pairg::buildValidPairsMatrix, time to index for querying (ms): " << T5.elapsed() << "\n";
 
-    return C;
+    return E;
   }
 }
 

@@ -50,6 +50,9 @@ namespace pairg
     }
 
     assert (param.d_up >= param.d_low);
+
+    std::cout << "INFO, pairg::parseandSave, reference graph = " << param.graphfile << std::endl;
+    std::cout << "INFO, pairg::parseandSave, limits = [" << param.d_low << ", " << param.d_up << "]" << std::endl;
   }
 }
 
