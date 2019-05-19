@@ -3,7 +3,7 @@ Pairing reads on genome graphs
 
 ## compile
 ```sh
-git clone --recursive https://github.com/cjain7/PairG.git
+git clone --recursive [URL]
 cd PairG
 mkdir build && cd build
 
