@@ -1,4 +1,4 @@
-# pairmap2graph
+# PairG
 Pairing reads on genome graphs
 
 ## compile
