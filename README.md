@@ -3,8 +3,8 @@ Pairing reads on genome graphs
 
 ## compile
 ```sh
-git clone --recursive https://github.com/cjain7/pairmap2graph.git
-cd pairmap2graph
+git clone --recursive https://github.com/cjain7/PairG.git
+cd PairG
 mkdir build && cd build
 
 cmake -DCMAKE_CXX_COMPILER=icpc \
