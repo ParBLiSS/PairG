@@ -154,7 +154,7 @@ namespace pairg
             row_map_C
             );
 
-        std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute symbolic phase (ms): " << T1.elapsed() << "\n";
+        //std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute symbolic phase (ms): " << T1.elapsed() << "\n";
 
 
         size_type c_nnz_size = kh.get_spgemm_handle()->get_c_nnz();
@@ -176,7 +176,7 @@ namespace pairg
             row_map_C, entries_C, values_C
             );
 
-        std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute numeric phase (ms): " << T2.elapsed() << "\n";
+        //std::cout << "INFO, pairg::matrixOps::multiplyMatrices, time to execute numeric phase (ms): " << T2.elapsed() << "\n";
 
         //reset nnz values in C to 1
         for(size_type i = 0; i < c_nnz_size; i++) {

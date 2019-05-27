@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 include(CheckCXXCompilerFlag)
 
 # project settings
-project(pairmap2graph)
+project(pairg)
 
 ##### General Compilation Settings
 set(CMAKE_CXX_FLAGS "-w ${CMAKE_CXX_FLAGS} --std=c++11")
@@ -77,6 +77,6 @@ add_dependencies(LIBVGIO SYMLNK)
 add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
 
 ###generate main executable
-add_executable(pairmap2graph "${PROJECT_SOURCE_DIR}/src/main.cpp")
-add_dependencies(pairmap2graph LIBHTS SYMLNK)
-target_link_libraries(pairmap2graph kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})
+add_executable(pairg "${PROJECT_SOURCE_DIR}/src/main.cpp")
+add_dependencies(pairg LIBHTS SYMLNK)
+target_link_libraries(pairg kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})

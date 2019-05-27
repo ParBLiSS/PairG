@@ -27,38 +27,43 @@ std::pair<int,int> getRandomPair(int MAX)
  */
 int main(int argc, char* argv[]) 
 {
-  Kokkos::initialize();
-
   //parse command line arguments   
   pairg::Parameters parameters;        
   pairg::parseandSave(argc, argv, parameters);   
 
+  //initialize kokkos
+  Kokkos::initialize();
+
   {
     pairg::timer T1;
 
+    //build adjacency matrix from input graph
     pairg::matrixOps::crsMat_t adj_mat = pairg::getAdjacencyMatrix(parameters);
     std::cout << "INFO, pairg::main, Time to build adjacency matrix (ms): " << T1.elapsed() << "\n";
     pairg::matrixOps::printMatrix(adj_mat, 1);
 
     pairg::timer T2;
+
+    //build index matrix 
     pairg::matrixOps::crsMat_t valid_pairs_mat = pairg::buildValidPairsMatrix(adj_mat, parameters); 
     std::cout << "INFO, pairg::main, Time to build result matrix (ms): " << T2.elapsed() << "\n";
     pairg::matrixOps::printMatrix(valid_pairs_mat, 1);
 
-    int search_count = 1000000;
+    //build a set of distance queries
     std::vector< std::pair<int,int> > random_pairs;
-    for(int i = 0; i < search_count; i++)
+    for(int i = 0; i < parameters.querycount; i++)
     {
       auto p = getRandomPair (valid_pairs_mat.numRows());
       random_pairs.push_back(p);
     }
 
+    //answer queries using index
     pairg::timer T3;
     for(auto &p : random_pairs)
     {
       bool exists = pairg::matrixOps::queryValue (valid_pairs_mat, p.first, p.second); 
     }
-    std::cout << "INFO, pairg::main, Time to execute " << search_count << " queries (ms): " << T3.elapsed() << "\n";
+    std::cout << "INFO, pairg::main, Time to execute " << parameters.querycount << " queries (ms): " << T3.elapsed() << "\n";
   }
 
   std::cout << std::flush;

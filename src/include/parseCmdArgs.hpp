@@ -22,6 +22,8 @@ namespace pairg
 
     int d_low;                  //lower bound on path length
     int d_up;                   //upper bound on path length
+    int threads;                //threads for parallel execution
+    int querycount;             //count of distance queries to run
   };
 
   /**
@@ -38,8 +40,10 @@ namespace pairg
        clipp::required("-m") & 
             (clipp::required("vg").set(param.gmode) | 
             clipp::required("txt").set(param.gmode)).doc("variation graph format"),
+       clipp::required("-c") & clipp::value("qcount", param.querycount).doc("count of distance queries"),
        clipp::required("-l") & clipp::value("d1", param.d_low).doc("lower bound on path length"),
-       clipp::required("-u") & clipp::value("d2", param.d_up).doc("upper bound on path length")
+       clipp::required("-u") & clipp::value("d2", param.d_up).doc("upper bound on path length"),
+       clipp::required("-t") & clipp::value("threads", param.threads).doc("count of threads for parallel execution")
       );
 
     if(!clipp::parse(argc, argv, cli)) 
@@ -49,10 +53,13 @@ namespace pairg
       exit(1);
     }
 
+    omp_set_num_threads(param.threads);
     assert (param.d_up >= param.d_low);
 
     std::cout << "INFO, pairg::parseandSave, reference graph = " << param.graphfile << std::endl;
     std::cout << "INFO, pairg::parseandSave, limits = [" << param.d_low << ", " << param.d_up << "]" << std::endl;
+    std::cout << "INFO, pairg::parseandSave, thread count = " << param.threads << std::endl;
+    std::cout << "INFO, pairg::parseandSave, distance query count = " << param.querycount << std::endl;
   }
 }
 
