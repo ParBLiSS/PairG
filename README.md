@@ -7,7 +7,7 @@ PairG is a prototype implementation that can be used as a module in a sequence t
 - [cmake](https://cmake.org) version >= 3.1
 - A C++ compiler with c++11 support, e.g., GNU `g++` (version 4.9+) or Intel `icpc` (version 15+)
 - [Google Protobuf](https://github.com/protocolbuffers/protobuf) library
-- Other dependencies (e.g., libvgio, kokkos, catch) are automatically downloaded and compiled 
+- Other dependencies (e.g., [libvgio](https://github.com/vgteam/libvgio), [kokkos](https://github.com/kokkos/kokkos), [Catch2](https://github.com/catchorg/Catch2)) are automatically downloaded and compiled 
 
 ## Download and compile
 
