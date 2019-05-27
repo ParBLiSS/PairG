@@ -39,7 +39,7 @@ After the compilation completes, expect an executable `PairG` in your build\_dir
 PairG -h
 ```
 
-* Build an index, and run 10e6 distance queries between randomly generated vertex pairs. For each query pair, we check if the distance is the range [101,200].
+* Build an index, and run 10e6 distance queries between randomly generated vertex pairs. For each query pair, suppose we want to check if the path distance is in range [101, 200].
 ```sh
 PairG -m vg -r graph.vg -l 101 -u 200 -c 1000000 -t 24
 ```
