@@ -24,8 +24,8 @@ TEST_CASE("building valid-pair matrix for a chain graph")
 
   SECTION( "both distance limits are zero" )
   {
-    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "0", "-u", "0", nullptr};
-    int argc = 9;
+    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "0", "-u", "0", "-t", "4", "-c", "0", nullptr};
+    int argc = 13;
 
     pairg::Parameters parameters;        
     pairg::parseandSave(argc, argv, parameters);
@@ -54,8 +54,8 @@ TEST_CASE("building valid-pair matrix for a chain graph")
 
   SECTION( "both distance limits are one" )
   {
-    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "1", "-u", "1", nullptr};
-    int argc = 9;
+    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "1", "-u", "1", "-t", "4", "-c", "0", nullptr};
+    int argc = 13;
 
     pairg::Parameters parameters;        
     pairg::parseandSave(argc, argv, parameters);
@@ -84,8 +84,8 @@ TEST_CASE("building valid-pair matrix for a chain graph")
 
   SECTION( "both distance limits are > |V|" )
   {
-    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "100000", "-u", "100000", nullptr};
-    int argc = 9;
+    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "100000", "-u", "100000", "-t", "4", "-c", "0", nullptr};
+    int argc = 13;
 
     pairg::Parameters parameters;        
     pairg::parseandSave(argc, argv, parameters);
@@ -109,8 +109,8 @@ TEST_CASE("building valid-pair matrix for a chain graph")
 
   SECTION( "distance limits are 0, 50" )
   {
-    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "0", "-u", "50", nullptr};
-    int argc = 9;
+    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "0", "-u", "50", "-t", "4", "-c", "0", nullptr};
+    int argc = 13;
 
     pairg::Parameters parameters;        
     pairg::parseandSave(argc, argv, parameters);
@@ -153,8 +153,8 @@ TEST_CASE("building valid-pair matrix for a chain graph")
 
   SECTION( "distance limits are 100, 110" )
   {
-    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "100", "-u", "110", nullptr};
-    int argc = 9;
+    char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "100", "-u", "110", "-t", "4", "-c", "0", nullptr};
+    int argc = 13;
 
     pairg::Parameters parameters;        
     pairg::parseandSave(argc, argv, parameters);

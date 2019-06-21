@@ -70,8 +70,8 @@ TEST_CASE("converting .txt formatted graph to CSR adjacency matrix")
 
   std::vector<char> RFILE(file.c_str(), file.c_str() + file.size() + 1u);
 
-  char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "1", "-u", "2", nullptr};
-  int argc = 9;
+  char *argv[] = {"pairmap2graph", "-m", "txt", "-r", RFILE.data(), "-l", "1", "-u", "2", "-c", "0", "-t", "4", nullptr};
+  int argc = 13;
 
   int V = 81189;
   int E = 81188;
@@ -110,8 +110,8 @@ TEST_CASE("converting .vg formatted graph to CSR adjacency matrix")
 
   std::vector<char> RFILE(file.c_str(), file.c_str() + file.size() + 1u);
 
-  char *argv[] = {"pairmap2graph", "-m", "vg", "-r", RFILE.data(), "-l", "1", "-u", "2", nullptr};
-  int argc = 9;
+  char *argv[] = {"pairmap2graph", "-m", "vg", "-r", RFILE.data(), "-l", "1", "-u", "2", "-c", "0", "-t", "4", nullptr};
+  int argc = 13;
 
   int V = 81190;
   int E = 81188;
