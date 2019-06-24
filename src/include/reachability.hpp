@@ -1,5 +1,5 @@
 /**
- * @file    spgemm_utility.cpp
+ * @file    reachability.hpp
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
@@ -41,7 +41,7 @@ namespace pairg
     typename matrixOps::lno_view_t rowmap("rowmap", nrows + 1);
 
     for(matrixOps::size_type i = 0; i < nnz; i++) {
-      values(i) = 1;
+      values(i) = 1;  //boolean
     }
 
     for(matrixOps::size_type i = 0; i < nnz; i++) {

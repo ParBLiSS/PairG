@@ -234,6 +234,10 @@ namespace pairg
         size_type end = A.graph.row_map(i + 1);
 
         return std::binary_search(A.graph.entries.data() + begin, A.graph.entries.data() + end, j);
+
+        //linear search
+        //auto it = std::find(A.graph.entries.data() + begin, A.graph.entries.data() + end, j);
+        //return (it != (A.graph.entries.data() + end));
       }
 
       /**

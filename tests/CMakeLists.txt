@@ -11,4 +11,8 @@ if (BUILD_TESTS)
   add_dependencies(test_pairing LIBHTS SYMLNK)
   target_link_libraries(test_pairing kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})
 
+  add_executable(test_bfs test_main.cpp test_bfs.cpp)
+  add_dependencies(test_bfs LIBHTS SYMLNK)
+  target_link_libraries(test_bfs kokkos ${PROTOBUF_LIBRARY} LIBVGIO ${HTS_LIBRARY})
+
 endif(BUILD_TESTS)
