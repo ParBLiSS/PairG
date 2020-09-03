@@ -3,11 +3,10 @@
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
-#include "reachability.hpp"
-#include "heuristics.hpp"
-
 //External includes
-#include "catch/single_include/catch2/catch.hpp"
+#include <pairg/reachability.hpp>
+#include <pairg/heuristics.hpp>
+#include <catch2/catch.hpp>
 
 #include "PaSGAL/graphLoad.hpp"
 #include "parseCmdArgs.hpp"

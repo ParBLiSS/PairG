@@ -3,16 +3,17 @@
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
-#include "spgemm_utility.hpp"
-#include "utility.hpp"
-#include "parseCmdArgs.hpp"
-#include "reachability.hpp"
-#include "heuristics.hpp"
+#include <pairg/spgemm_utility.hpp>
+#include <pairg/utility.hpp>
+#include <pairg/reachability.hpp>
+#include <pairg/heuristics.hpp>
 
 //External includes
 #include "clipp/include/clipp.h"
 #include "prettyprint/prettyprint.hpp"
 #include "PaSGAL/graphLoad.hpp"
+
+#include "parseCmdArgs.hpp"
 
 /**
  * @brief   get a random pair of integers, each value lies in [0, MAX)
