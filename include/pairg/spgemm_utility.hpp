@@ -88,7 +88,7 @@ namespace pairg
             (&kh, A.graph.row_map, A.graph.entries, 
              B.graph.row_map, B.graph.entries, row_map_C);
 
-        size_type max_result_nnz = kh.get_spadd_handle()->get_max_result_nnz();
+        size_type max_result_nnz = kh.get_spadd_handle()->get_c_nnz();
 
         if (max_result_nnz) {
           entries_C = lno_nnz_view_t ("C entries", max_result_nnz);
