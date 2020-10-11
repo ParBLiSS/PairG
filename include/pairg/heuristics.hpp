@@ -6,6 +6,8 @@
 #ifndef PAIRG_HEURISTICS_HPP
 #define PAIRG_HEURISTICS_HPP
 
+#include <list>
+
 #include "spgemm_utility.hpp"
 
 namespace pairg

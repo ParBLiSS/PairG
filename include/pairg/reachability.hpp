@@ -3,8 +3,8 @@
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
-#ifndef PAIR_REACHABILITY_HPP
-#define PAIR_REACHABILITY_HPP
+#ifndef PAIRG_REACHABILITY_HPP
+#define PAIRG_REACHABILITY_HPP
 
 #include "spgemm_utility.hpp"
 
