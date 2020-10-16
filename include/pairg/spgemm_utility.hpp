@@ -67,10 +67,10 @@ namespace pairg
         //Assume rows are not sorted
         kh.create_spadd_handle(false);
 
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
-        const lno_t num_rows_B = B.numRows();
-        const lno_t num_cols_B = B.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_B = B.numRows();
+        [[maybe_unused]] const lno_t num_cols_B = B.numCols();
 
         assert(num_rows_A == num_rows_B);
         assert(num_cols_A == num_cols_B);
@@ -132,10 +132,10 @@ namespace pairg
         KokkosSparse::SPGEMMAlgorithm spgemm_algorithm = KokkosSparse::SPGEMM_KK_MEMORY;
         kh.create_spgemm_handle(spgemm_algorithm);
 
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
-        const lno_t num_rows_B = B.numRows();
-        const lno_t num_cols_B = B.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_B = B.numRows();
+        [[maybe_unused]] const lno_t num_cols_B = B.numCols();
 
         assert(num_cols_A == num_rows_B);
 
@@ -195,8 +195,8 @@ namespace pairg
        */
       static crsMat_t power(const crsMat_t &A, int n)
       {
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
 
         assert(num_rows_A == num_cols_A);
 
@@ -246,7 +246,7 @@ namespace pairg
       static void indexForQuery(crsMat_t &A)
       {
         lno_t num_rows = A.numRows();
-        size_type nnz = A.graph.entries.extent(0);
+        [[maybe_unused]] size_type nnz = A.graph.entries.extent(0);
 
         //Functor to sort entries within each row
         auto sortEntries = [&](const lno_t i)
