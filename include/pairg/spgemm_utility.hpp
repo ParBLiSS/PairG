@@ -191,30 +191,30 @@ namespace pairg
 
       /**
        * @brief   raise a square matrix to a power
-       * @return  
+       * @return  C = A raised by n
        */
-      static crsMat_t power(const crsMat_t &A, int n)
+      static crsMat_t power(const crsMat_t &A, unsigned int n)
       {
         [[maybe_unused]] const lno_t num_rows_A = A.numRows();
         [[maybe_unused]] const lno_t num_cols_A = A.numCols();
 
         assert(num_rows_A == num_cols_A);
 
-        crsMat_t C = createIdentityMatrix(num_rows_A); // Initialize result 
+        crsMat_t C = createIdentityMatrix(num_rows_A); // Initialize result
 
         crsMat_t A_copy = A;
 
-        while (n > 0) 
-        { 
-          // If n is odd, multiply x with result 
+        while (true) {
+          // If n is odd, multiply x with result
           if (n & 1) 
             C = multiplyMatrices(C, A_copy);
 
           n = n >> 1;
-          A_copy = multiplyMatrices(A_copy, A_copy);  
+          if (n <= 0) break;
+          A_copy = multiplyMatrices(A_copy, A_copy);
         }
 
-        return C; 
+        return C;
       }
 
       /**
