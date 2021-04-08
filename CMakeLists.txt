@@ -8,6 +8,17 @@ project(pairg LANGUAGES CXX)
 option(BUILD_LIBRARY_ONLY "Inform whether only library should be built" OFF)
 # Check if the user wants to build google test applications
 option(BUILD_TESTING "Inform whether test applications should be built" OFF)
+# Check if the user wants to use bundled Kokkos library
+option(USE_BUNDLED_KOKKOS "Use bundled Kokkos" OFF)
+# Check if the user wants to use bundled KokkosKernels library
+option(USE_BUNDLED_KOKKOS_KERNELS "Use bundled KokkosKernels" OFF)
+# Check if the user wants to use all bundled dependencies
+option(USE_BUNDLED_ALL "Use all bundled dependencies" OFF)
+
+if(USE_BUNDLED_ALL)
+  set(USE_BUNDLED_KOKKOS on)
+  set(USE_BUNDLED_KOKKOS_KERNELS on)
+endif(USE_BUNDLED_ALL)
 
 # Include external modules
 include(GNUInstallDirs)
