@@ -22,6 +22,7 @@ endif(USE_BUNDLED_ALL)
 
 # Include external modules
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 # Adding CMake module path.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 ## Finding dependencies
@@ -53,6 +54,22 @@ target_sources(libpairg
 add_library(pairg::libpairg ALIAS libpairg)
 # Install targets
 install(FILES ${BUILD_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/pairg)
+# Exporting targets
+install(TARGETS libpairg EXPORT pairg-targets)
+install(EXPORT pairg-targets NAMESPACE pairg:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pairg)
+# Creating the package configuration file
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/pairg-config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/pairg-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pairg)
+# Generating the version file for the configuration file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/pairg-config-version.cmake"
+  VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+  COMPATIBILITY AnyNewerVersion)
+# Install generated configuration files
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pairg-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/pairg-config-version.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pairg)
 
 # Save libs and executables in the same place
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "Output directory for libraries" )
