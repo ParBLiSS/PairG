@@ -3,10 +3,12 @@
  * @author  Chirag Jain <cjain7@gatech.edu>
  */
 
-#include "reachability.hpp"
-
 //External includes
-#include "catch/single_include/catch2/catch.hpp"
+#include <pairg/reachability.hpp>
+#include <catch2/catch.hpp>
+
+#include "PaSGAL/graphLoad.hpp"
+#include "parseCmdArgs.hpp"
 
 #define QUOTE(name) #name
 #define STR(macro) QUOTE(macro)
@@ -79,8 +81,11 @@ TEST_CASE("converting .txt formatted graph to CSR adjacency matrix")
   pairg::Parameters parameters;        
   pairg::parseandSave(argc, argv, parameters);
 
+  psgl::graphLoader g;
+  g.loadFromTxt(parameters.graphfile);
+
   {
-    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(parameters);
+    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
 
     SECTION( "evaluating matrix size" ) {
       REQUIRE(A.numRows() == V);  
@@ -119,8 +124,11 @@ TEST_CASE("converting .vg formatted graph to CSR adjacency matrix")
   pairg::Parameters parameters;        
   pairg::parseandSave(argc, argv, parameters);
 
+  psgl::graphLoader g;
+  g.loadFromVG(parameters.graphfile);
+
   {
-    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(parameters);
+    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
 
     SECTION( "evaluating matrix size" ) {
       REQUIRE(A.numRows() == V);  

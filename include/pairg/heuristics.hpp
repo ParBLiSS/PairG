@@ -6,6 +6,8 @@
 #ifndef PAIRG_HEURISTICS_HPP
 #define PAIRG_HEURISTICS_HPP
 
+#include <list>
+
 #include "spgemm_utility.hpp"
 
 namespace pairg
@@ -13,21 +15,21 @@ namespace pairg
   /**
    * @brief             implement a simple heuristic to check distance constraints
    * @param[in] A       adjacency matrix (CSR formatted)
-   * @param[in] p       input parameters (pull distance constraints from here)
+   * @param[in] d_up    distance constraint: upper bound on path length
    * @param[in] src     source vertex
    * @param[in] target  target vertex
    * @details           run BFS from source vertex up to d_2 levels and see if we reach
    *                    the target vertex
    * @return            boolean value (true if reached, false if not)
    */
-  bool queryReachabilityBFS(const matrixOps::crsMat_t &A, const Parameters &p, matrixOps::lno_t src, matrixOps::lno_t target)
+  bool queryReachabilityBFS(const matrixOps::crsMat_t &A, int d_up, matrixOps::lno_t src, matrixOps::lno_t target)
   {
     if (src >= A.numRows() || target >= A.numCols()) {
       std::cout << "WARNING, pairg::matrixOps::queryValue, query index out of range" << std::endl;
       return false;
     }
 
-    assert(p.d_up > 0);
+    assert(d_up > 0);
 
     if (src == target)
       return true;
@@ -46,7 +48,7 @@ namespace pairg
     Q.push_back(src);  visited[src] = true;
     Q.push_back(dummy);   //to travel the levels
 
-    while(!Q.empty() && level <= p.d_up) 
+    while(!Q.empty() && level <= d_up)
     {
       //pick vertex from queue
       auto cur = Q.front();
