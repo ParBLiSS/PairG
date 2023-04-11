@@ -344,7 +344,9 @@ namespace pairg
        *                              - not suitable for very large matrices as the randomization procedure is expensive
        *                              - modified from kokkos-kernels repo: unit_test/sparse/Test_Sparse_spadd.hpp
        */
-      static crsMat_t createRandomMatrix(lno_t nrows, lno_t minNNZ, lno_t maxNNZ, bool sortRows)
+      template<class URBG=std::mt19937>
+      static crsMat_t createRandomMatrix(lno_t nrows, lno_t minNNZ, lno_t maxNNZ, bool sortRows,
+                                         URBG&& g={std::random_device()})
       {
         //first, populate rowmap
         lno_view_t rowmap("rowmap", nrows + 1);
@@ -379,7 +381,7 @@ namespace pairg
           {
             indices[j] = j;
           }
-          std::random_shuffle(indices.begin(), indices.end());
+          std::shuffle(indices.begin(), indices.end(), g);
           size_type rowStart = h_rowmap(i);
           size_type rowCount = h_rowmap(i + 1) - rowStart;
           if(sortRows)
