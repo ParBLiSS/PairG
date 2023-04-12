@@ -80,12 +80,8 @@ namespace pairg
         scalar_view_t values_C;
 
         //Compute no. of nnz elements in C
-        KokkosSparse::Experimental::spadd_symbolic<
-          KernelHandle, 
-          lno_view_t::const_type, lno_nnz_view_t::const_type, 
-          lno_view_t::const_type, lno_nnz_view_t::const_type, 
-          lno_view_t, lno_nnz_view_t>
-            (&kh, A.graph.row_map, A.graph.entries, 
+        KokkosSparse::Experimental::spadd_symbolic (&kh,
+             A.graph.row_map, A.graph.entries,
              B.graph.row_map, B.graph.entries, row_map_C);
 
         size_type max_result_nnz = kh.get_spadd_handle()->get_c_nnz();
