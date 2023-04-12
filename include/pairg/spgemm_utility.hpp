@@ -67,10 +67,10 @@ namespace pairg
         //Assume rows are not sorted
         kh.create_spadd_handle(false);
 
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
-        const lno_t num_rows_B = B.numRows();
-        const lno_t num_cols_B = B.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_B = B.numRows();
+        [[maybe_unused]] const lno_t num_cols_B = B.numCols();
 
         assert(num_rows_A == num_rows_B);
         assert(num_cols_A == num_cols_B);
@@ -88,7 +88,7 @@ namespace pairg
             (&kh, A.graph.row_map, A.graph.entries, 
              B.graph.row_map, B.graph.entries, row_map_C);
 
-        size_type max_result_nnz = kh.get_spadd_handle()->get_max_result_nnz();
+        size_type max_result_nnz = kh.get_spadd_handle()->get_c_nnz();
 
         if (max_result_nnz) {
           entries_C = lno_nnz_view_t ("C entries", max_result_nnz);
@@ -132,10 +132,10 @@ namespace pairg
         KokkosSparse::SPGEMMAlgorithm spgemm_algorithm = KokkosSparse::SPGEMM_KK_MEMORY;
         kh.create_spgemm_handle(spgemm_algorithm);
 
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
-        const lno_t num_rows_B = B.numRows();
-        const lno_t num_cols_B = B.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_B = B.numRows();
+        [[maybe_unused]] const lno_t num_cols_B = B.numCols();
 
         assert(num_cols_A == num_rows_B);
 
@@ -191,30 +191,30 @@ namespace pairg
 
       /**
        * @brief   raise a square matrix to a power
-       * @return  
+       * @return  C = A raised by n
        */
-      static crsMat_t power(const crsMat_t &A, int n)
+      static crsMat_t power(const crsMat_t &A, unsigned int n)
       {
-        const lno_t num_rows_A = A.numRows();
-        const lno_t num_cols_A = A.numCols();
+        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        [[maybe_unused]] const lno_t num_cols_A = A.numCols();
 
         assert(num_rows_A == num_cols_A);
 
-        crsMat_t C = createIdentityMatrix(num_rows_A); // Initialize result 
+        crsMat_t C = createIdentityMatrix(num_rows_A); // Initialize result
 
         crsMat_t A_copy = A;
 
-        while (n > 0) 
-        { 
-          // If n is odd, multiply x with result 
+        while (true) {
+          // If n is odd, multiply x with result
           if (n & 1) 
             C = multiplyMatrices(C, A_copy);
 
           n = n >> 1;
-          A_copy = multiplyMatrices(A_copy, A_copy);  
+          if (n <= 0) break;
+          A_copy = multiplyMatrices(A_copy, A_copy);
         }
 
-        return C; 
+        return C;
       }
 
       /**
@@ -246,7 +246,7 @@ namespace pairg
       static void indexForQuery(crsMat_t &A)
       {
         lno_t num_rows = A.numRows();
-        size_type nnz = A.graph.entries.extent(0);
+        [[maybe_unused]] size_type nnz = A.graph.entries.extent(0);
 
         //Functor to sort entries within each row
         auto sortEntries = [&](const lno_t i)
@@ -344,7 +344,9 @@ namespace pairg
        *                              - not suitable for very large matrices as the randomization procedure is expensive
        *                              - modified from kokkos-kernels repo: unit_test/sparse/Test_Sparse_spadd.hpp
        */
-      static crsMat_t createRandomMatrix(lno_t nrows, lno_t minNNZ, lno_t maxNNZ, bool sortRows)
+      template<class URBG=std::mt19937>
+      static crsMat_t createRandomMatrix(lno_t nrows, lno_t minNNZ, lno_t maxNNZ, bool sortRows,
+                                         URBG&& g={std::random_device()})
       {
         //first, populate rowmap
         lno_view_t rowmap("rowmap", nrows + 1);
@@ -379,7 +381,7 @@ namespace pairg
           {
             indices[j] = j;
           }
-          std::random_shuffle(indices.begin(), indices.end());
+          std::shuffle(indices.begin(), indices.end(), g);
           size_type rowStart = h_rowmap(i);
           size_type rowCount = h_rowmap(i + 1) - rowStart;
           if(sortRows)
