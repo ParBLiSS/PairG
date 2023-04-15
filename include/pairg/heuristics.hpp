@@ -22,7 +22,7 @@ namespace pairg
    *                    the target vertex
    * @return            boolean value (true if reached, false if not)
    */
-  bool queryReachabilityBFS(const matrixOps::crsMat_t &A, int d_up, matrixOps::lno_t src, matrixOps::lno_t target)
+  inline bool queryReachabilityBFS(const matrixOps::crsMat_t &A, int d_up, matrixOps::lno_t src, matrixOps::lno_t target)
   {
     if (src >= A.numRows() || target >= A.numCols()) {
       std::cout << "WARNING, pairg::matrixOps::queryValue, query index out of range" << std::endl;

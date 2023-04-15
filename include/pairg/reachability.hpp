@@ -14,7 +14,7 @@ namespace pairg
    * @brief     build adjacency matrix from variaton graph
    */
   template< class TCharGraph >
-  matrixOps::crsMat_t getAdjacencyMatrix(const TCharGraph &cg)
+  inline matrixOps::crsMat_t getAdjacencyMatrix(const TCharGraph &cg)
   {
     typename matrixOps::lno_t nrows = cg.numVertices;
     typename matrixOps::size_type nnz = cg.numEdges;
@@ -47,7 +47,7 @@ namespace pairg
    * @return           validity matrix
    *                   cell (i,j) = 1 iff there is a valid path from v_i to v_j
    */
-  matrixOps::crsMat_t buildValidPairsMatrix(const matrixOps::crsMat_t &A, int d_low, int d_up)
+  inline matrixOps::crsMat_t buildValidPairsMatrix(const matrixOps::crsMat_t &A, int d_low, int d_up)
   {
     pairg::timer T1;
     matrixOps::crsMat_t B = matrixOps::addMatrices(A, matrixOps::createIdentityMatrix(A.numRows()));
