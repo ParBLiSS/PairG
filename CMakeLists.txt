@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Project settings
-project(pairg VERSION 0.2.0 LANGUAGES CXX)
+project(pairg VERSION 0.2.1 LANGUAGES CXX)
 
 ## Options
 # Check if the user wants to only build the library
