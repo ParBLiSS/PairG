@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <cassert>
 #include <typeinfo> 
+#include <iostream>
 
 //Own includes
 #include "utility.hpp" 
@@ -25,18 +26,21 @@
 
 namespace pairg
 {
+  template<typename TScalar = char,
+           typename TOrdinal = int,
+           typename TDevice = Kokkos::DefaultHostExecutionSpace::device_type>
   class matrixOps
   {
     public:
 
       //value type in matrices
-      typedef int8_t scalar_t;
+      typedef TScalar scalar_t;
 
       //locus type (or coordinate type)
-      typedef int lno_t;
+      typedef TOrdinal lno_t;
 
       //parallelization support requested from kokkos
-      typedef Kokkos::OpenMP Device;
+      typedef TDevice Device;
 
       //matrix format
       typedef typename KokkosSparse::CrsMatrix<scalar_t, lno_t, Device> crsMat_t;
@@ -53,7 +57,7 @@ namespace pairg
         typename Device::execution_space, typename Device::memory_space,typename Device::memory_space > KernelHandle;
 
       //for kokkos::parallel_for
-      typedef Kokkos::RangePolicy<Device::execution_space, lno_t> range_type;
+      typedef Kokkos::RangePolicy<typename Device::execution_space, lno_t> range_type;
 
       /**
        * @brief     boolean addition of two matrices 
@@ -67,7 +71,7 @@ namespace pairg
         //Assume rows are not sorted
         kh.create_spadd_handle(false);
 
-        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        const lno_t num_rows_A = A.numRows();
         [[maybe_unused]] const lno_t num_cols_A = A.numCols();
         [[maybe_unused]] const lno_t num_rows_B = B.numRows();
         [[maybe_unused]] const lno_t num_cols_B = B.numCols();
@@ -128,10 +132,10 @@ namespace pairg
         KokkosSparse::SPGEMMAlgorithm spgemm_algorithm = KokkosSparse::SPGEMM_KK_MEMORY;
         kh.create_spgemm_handle(spgemm_algorithm);
 
-        [[maybe_unused]] const lno_t num_rows_A = A.numRows();
+        const lno_t num_rows_A = A.numRows();
         [[maybe_unused]] const lno_t num_cols_A = A.numCols();
-        [[maybe_unused]] const lno_t num_rows_B = B.numRows();
-        [[maybe_unused]] const lno_t num_cols_B = B.numCols();
+        const lno_t num_rows_B = B.numRows();
+        const lno_t num_cols_B = B.numCols();
 
         assert(num_cols_A == num_rows_B);
 
