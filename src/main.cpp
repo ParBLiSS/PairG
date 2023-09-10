@@ -57,16 +57,16 @@ int main(int argc, char* argv[])
 
     //build adjacency matrix from input graph
     //Use g.diCharGraph to build adjacency matrix
-    pairg::matrixOps::crsMat_t adj_mat = pairg::getAdjacencyMatrix(g.diCharGraph);
+    pairg::matrixOps<>::crsMat_t adj_mat = pairg::getAdjacencyMatrix(g.diCharGraph);
     std::cout << "INFO, pairg::main, Time to build adjacency matrix (ms): " << T1.elapsed() << "\n";
-    pairg::matrixOps::printMatrix(adj_mat, 1);
+    pairg::matrixOps<>::printMatrix(adj_mat, 1);
 
     pairg::timer T2;
 
     //build index matrix
-    pairg::matrixOps::crsMat_t valid_pairs_mat = pairg::buildValidPairsMatrix(adj_mat, parameters.d_low, parameters.d_up); 
+    pairg::matrixOps<>::crsMat_t valid_pairs_mat = pairg::buildValidPairsMatrix(adj_mat, parameters.d_low, parameters.d_up);
     std::cout << "INFO, pairg::main, Time to build result matrix (ms): " << T2.elapsed() << "\n";
-    pairg::matrixOps::printMatrix(valid_pairs_mat, 1);
+    pairg::matrixOps<>::printMatrix(valid_pairs_mat, 1);
 
     //build a set of distance queries
     std::vector< std::pair<int,int> > random_pairs;
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     pairg::timer T3;
     for(int i = 0; i < parameters.querycount; i++)
     {
-      results_spgemm[i] = pairg::matrixOps::queryValue (valid_pairs_mat, random_pairs[i].first, random_pairs[i].second); 
+      results_spgemm[i] = pairg::matrixOps<>::queryValue (valid_pairs_mat, random_pairs[i].first, random_pairs[i].second);
     }
     std::cout << "INFO, pairg::main, Time to execute " << parameters.querycount << " queries (ms): " << T3.elapsed() << "\n";
   }

@@ -85,7 +85,7 @@ TEST_CASE("converting .txt formatted graph to CSR adjacency matrix")
   g.loadFromTxt(parameters.graphfile);
 
   {
-    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
+    pairg::matrixOps<>::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
 
     SECTION( "evaluating matrix size" ) {
       REQUIRE(A.numRows() == V);  
@@ -128,7 +128,7 @@ TEST_CASE("converting .vg formatted graph to CSR adjacency matrix")
   g.loadFromVG(parameters.graphfile);
 
   {
-    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
+    pairg::matrixOps<>::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
 
     SECTION( "evaluating matrix size" ) {
       REQUIRE(A.numRows() == V);  

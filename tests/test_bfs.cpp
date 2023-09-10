@@ -39,7 +39,7 @@ TEST_CASE("building valid-pair matrix for a chain graph")
     psgl::graphLoader g;
     g.loadFromTxt(parameters.graphfile);
 
-    pairg::matrixOps::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
+    pairg::matrixOps<>::crsMat_t A = pairg::getAdjacencyMatrix(g.diCharGraph);
 
     int NNZ = E;
 
