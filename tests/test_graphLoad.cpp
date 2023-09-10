@@ -64,8 +64,6 @@ TEST_CASE("loading .vg formatted graph")
 
 TEST_CASE("converting .txt formatted graph to CSR adjacency matrix") 
 {
-  Kokkos::initialize();
-
   //get file name
   std::string file = FOLDER;
   file = file + "/chain.txt";
@@ -100,15 +98,11 @@ TEST_CASE("converting .txt formatted graph to CSR adjacency matrix")
       REQUIRE(std::accumulate(A.values.data(), A.values.data() + A.values.extent(0), 1, std::multiplies<int>()) == 1);
     }
   }
-
-  Kokkos::finalize();
 }
 
 
 TEST_CASE("converting .vg formatted graph to CSR adjacency matrix") 
 {
-  Kokkos::initialize();
-
   //get file name
   std::string file = FOLDER;
   file = file + "/chain.vg";
@@ -143,7 +137,4 @@ TEST_CASE("converting .vg formatted graph to CSR adjacency matrix")
       REQUIRE(std::accumulate(A.values.data(), A.values.data() + A.values.extent(0), 1, std::multiplies<int>()) == 1);
     }
   }
-
-  Kokkos::finalize();
 }
-

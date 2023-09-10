@@ -16,8 +16,6 @@
 
 TEST_CASE("building valid-pair matrix for a chain graph") 
 {
-  Kokkos::initialize();
-
   //get file name
   std::string file = FOLDER;
   file = file + "/chain.txt";
@@ -214,6 +212,4 @@ TEST_CASE("building valid-pair matrix for a chain graph")
       REQUIRE(pairg::matrixOps<>::queryValue (B, 81077, 81188) == false);
     }
   }
-
-  Kokkos::finalize();
 }
