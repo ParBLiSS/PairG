@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
 
 # Project settings
 project(pairg VERSION 0.2.1 LANGUAGES CXX)
@@ -26,6 +26,7 @@ include(CMakePackageConfigHelpers)
 # Adding CMake module path.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 ## Finding dependencies
+find_package(OpenMP REQUIRED)
 find_package(Kokkos QUIET)
 find_package(KokkosKernels QUIET)
 # Handle bundled dependencies
