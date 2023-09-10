@@ -22,7 +22,10 @@ namespace pairg
    *                    the target vertex
    * @return            boolean value (true if reached, false if not)
    */
-  inline bool queryReachabilityBFS(const matrixOps::crsMat_t &A, int d_up, matrixOps::lno_t src, matrixOps::lno_t target)
+  template< typename TMatrixOps=matrixOps<> >
+  inline bool queryReachabilityBFS(const typename TMatrixOps::crsMat_t &A,
+                                   int d_up, typename TMatrixOps::lno_t src,
+                                   typename TMatrixOps::lno_t target)
   {
     if (src >= A.numRows() || target >= A.numCols()) {
       std::cout << "WARNING, pairg::matrixOps::queryValue, query index out of range" << std::endl;
@@ -38,13 +41,13 @@ namespace pairg
     int level = 0;
 
     //dummy value to track BFS levels
-    matrixOps::lno_t dummy = std::numeric_limits<matrixOps::lno_t>::max();
+    typename TMatrixOps::lno_t dummy = std::numeric_limits<typename TMatrixOps::lno_t>::max();
 
     //Mark all the vertices as not visited 
     std::vector<bool> visited(A.numRows(), false);  
 
     //queue for putting visited vertices
-    std::list<matrixOps::lno_t> Q; 
+    std::list<typename TMatrixOps::lno_t> Q;
     Q.push_back(src);  visited[src] = true;
     Q.push_back(dummy);   //to travel the levels
 
